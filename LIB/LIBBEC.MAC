@@ -1,0 +1,175 @@
+;
+;       BIBLIOTECA      BECAPE - Lib.Mac
+;       Fabio Gamarra Lubacheski    28/05/94   10:05
+;
+;
+;
+
+
+
+
+;[]---------------------------------------------------------------------------[]
+;                           MACRO POSICIONA CURSOR                            []
+;[]---------------------------------------------------------------------------[]
+Gotoxy  MACRO   lin,col
+
+        push    ax
+        push    bx
+        push    dx
+
+        mov     bh,00           ; define a pagina de video
+        mov     dh,lin          ; linha  para posicionar o cursor
+        mov     dl,col          ; coluna para posicionar o cursor
+        mov     ah,02h
+        int     10h             ; chama a funcao que posiona o cursor na tela
+
+        pop     dx
+        pop     bx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                           MACRO LIMPA A TELA                                []
+;[]---------------------------------------------------------------------------[]
+Clear   MACRO
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     bh,07d          ; define atributo a ser utilizado
+        mov     cx,00h          ; define em ch e cl (0,0)
+        mov     dh,24d          ; define em dh a linha final
+        mov     dl,79d          ; define em dl a coluna final
+        mov     al,00d          ; define em al para rolar toda a tela
+        mov     ah,06d          ; parametro para int 10h
+        int     10h
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                       MACRO ESPERA UM CARACTER (SEM ECO)                    []
+;[]---------------------------------------------------------------------------[]
+Inkey   MACRO
+        push    ax
+
+        mov     ah,07d          ; parametro para funcao int 21h
+        int     21h
+
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                        MACRO DESLIGA O CURSOR                               []
+;[]---------------------------------------------------------------------------[]
+CursOn  MACRO
+        push    ax
+        push    cx
+
+        mov     cx,607h
+        mov     ah,01d          ; parametro para funcao int 10h
+        int     10h
+
+        pop     cx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                          MACRO DESLIGA O CURSOR                             []
+;[]---------------------------------------------------------------------------[]
+CursOff MACRO
+
+        push    cx
+        push    ax
+
+        mov     cx,2000h
+        mov     ah,01d          ; parametro para funcao int 10h
+        int     10h
+
+        pop     cx
+        pop     ax
+
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                          MACRO DESLIGA O CURSOR                             []
+;[]---------------------------------------------------------------------------[]
+Beep    MACRO
+
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     dx,0            ; inicializa dx em zero
+        in      al,61h          ; apanha informacao da porta do
+                                ; alto falante para aL
+        and     al,0FCh         ; mascara inferior Mantem 2 bits inferiores
+
+more:   mov     temp,00h        ; inicializa variavel em zero
+        inc     dx              ; incrementa registrador dx
+        cmp     dx,15           ; ja o fez 50 vezes ?
+        je      finish          ; xor 2 bits do registrador a1
+
+go:     xor     al,02h          ; apanha frequencia corrente
+        mov     cx,temp         ; apanha frequencia corrente
+        cmp     cx,400          ; atingiu 600 hertz ?
+        je      more            ; se sim, repete a sequencia
+        inc     temp            ; se nao, aumenta a frequencia
+        out     61h,al          ; envia para a porta do af
+
+delay:  loop    delay           ; retorna controle ao DOS
+        jmp     go              ; continue
+
+        pop     ax
+        pop     bx
+        pop     cx
+        pop     dx
+
+        ENDM
+
+;[]---------------------------------------------------------------------------[]
+;                       MACRO IMPRIME STRING NA TELA                          []
+;[]---------------------------------------------------------------------------[]
+PrinStr MACRO    lin,col,Str
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     bh,00           ; define a pagina de video
+        mov     dh,lin          ; linha  para posicionar o cursor
+        mov     dl,col          ; coluna para posicionar o cursor
+        mov     ah,02h
+        int     10h             ; chama a funcao que posiona o cursor na tela
+
+        lea     dx,Str
+        mov     ah,9            ; funcao imprime string na tela
+        int     21h
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                          MACRO FINALIZA O PROGRAMA                          []
+;[]---------------------------------------------------------------------------[]
+Fim     MACRO
+
+        CursOn                  ; liga o cursor
+
+        Clear                   ;
+        Gotoxy  00,00           ;
+
+        mov     ah,4CH          ; retorna o controle ao DOS
+        int     21h             ;
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                             FIM DE PROGRAMA                                 []
+

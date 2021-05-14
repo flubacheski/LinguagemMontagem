@@ -1,0 +1,71 @@
+;
+;       BIBLIOTECA      Lib.Mac
+;       Fabio Gamarra Lubacheski    28/05/94   10:05
+;
+;
+;
+
+
+
+
+;[]---------------------------------------------------------------------------[]
+;                           MACRO POSICIONA CURSOR                            []
+;[]---------------------------------------------------------------------------[]
+Gotoxy  MACRO   lin,col
+
+        push    ax
+        push    bx
+        push    dx
+
+        mov     bh,00           ; define a pagina de video
+        mov     dh,lin          ; linha  para posicionar o cursor
+        mov     dl,col          ; coluna para posicionar o cursor
+        mov     ah,02h
+        int     10h             ; chama a funcao que posiona o cursor na tela
+
+        pop     dx
+        pop     bx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                       MACRO ESPERA UM CARACTER (SEM ECO)                    []
+;[]---------------------------------------------------------------------------[]
+Inkey   MACRO
+        push    ax
+
+        mov     ah,07d          ; parametro para funcao int 21h
+        int     21h
+
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                       MACRO IMPRIME STRING NA TELA                          []
+;[]---------------------------------------------------------------------------[]
+PrinStr MACRO    lin,col,Str
+        push    ax
+        push    bx
+        push    cx
+        push    dx
+
+        mov     bh,00           ; define a pagina de video
+        mov     dh,lin          ; linha  para posicionar o cursor
+        mov     dl,col          ; coluna para posicionar o cursor
+        mov     ah,02h
+        int     10h             ; chama a funcao que posiona o cursor na tela
+
+        lea     dx,Str
+        mov     ah,9            ; funcao imprime string na tela
+        int     21h
+
+        pop     dx
+        pop     cx
+        pop     bx
+        pop     ax
+
+        ENDM
+;[]---------------------------------------------------------------------------[]
+;                             FIM DE PROGRAMA                                 []
+;[]---------------------------------------------------------------------------[]
+

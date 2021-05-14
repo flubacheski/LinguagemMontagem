@@ -1,0 +1,137 @@
+;---------------------------------------------;
+;   Macro   para limpar a tela e posicionar   ;
+;   o cursor nas coordenadas 0, 0             ;
+;---------------------------------------------;
+
+CLRSCR       MACRO
+     
+	   ; instrucoes para apagar a tela
+
+            push  ax
+            push  bx
+            push  cx
+            push  dx
+
+            mov cx, 0000    ; linha e coluna do canto superior esquerdo
+	    mov dx, 2479h   ; linha e coluna do canto inferior direito
+	    mov bh, 07      ; atributo normal do caracter
+	    mov ah, 06      ; rola pagina ativa para cima
+	    mov al, 00      ; rola a janela inteira
+	    int 10h         ; chama  a interrupcao bios
+
+
+            pop   dx
+            pop   cx
+            pop   bx
+            pop   ax
+  ENDM                      ; fim macro
+
+;---------------------------------------------------;
+;             Macro  Cursor                         ;
+;---------------------------------------------------;
+ 
+
+CURSOR MACRO  SPOT    ; move o cursor para spot
+     
+       push   ax      ; salva os registradores
+       push   dx
+       mov ah, 15     ; apanha a tela atual
+       int 10h        ; chama interrupcao e define valores  bx
+       mov dx, spot   ; move localizacao da tela para dx
+       mov ah, 2      ; define parametro para cursor
+       int 10h        ; chama interrupcao
+       pop dx         ; recupera registradores
+       pop ax
+ENDM                  ; fim macro
+
+;---------------------------------------------------;
+;            Macro modo de video                    ;
+;---------------------------------------------------;
+
+SETSCREEN  MACRO  SCRMODE
+
+       push  ax         ; guarda os registradores
+       mov ah, 00       ; prepara para mudar a tela
+       mov al, scrmode  ; tela desejada
+       int 10h          ; interrupcao bios
+       pop ax           ; recupera registradores
+ENDM                    ; fim macro
+
+DRAWDOT MACRO SHADE
+
+         push   ax
+	 push   cx
+	 push   dx
+	 mov ah, 12
+	 mov al, shade
+	 int 10h
+	 pop dx
+	 pop cx
+	 pop ax
+ENDM
+
+NUMOUT  MACRO  VALUE
+
+	 local  loop1, printit
+	 push  ax
+	 push  bx
+	 push  cx
+	 push  dx
+	 push  di
+	 mov   dx, value
+	 mov cx, 0
+	 lea di, mybuffer
+
+loop1:   push  cx;
+	 mov ax, dx
+	 mov dx, 0
+	 mov cx, 10
+	 div 10
+	 xchg ax, dx
+	 add al, 30h
+	 mov di, al
+	 inc di
+	 pop cx
+	 inc cx
+	 cmp dx, 0
+	 jnz loop2
+
+printit : 
+	 dec di
+	 mov al, di
+	 push dx
+	 mov dl, al
+	 mov ah, 2
+	 int 21h
+	 pop dx
+	 loop printit
+	 pop di
+	 pop dx
+	 pop cx
+	 pop bx
+	 pop ax
+ENDM
+
+_PrintStr MACRO  Str            ;; Procedimento imprime mensagem
+
+       push ds                  ;; salva registrador
+
+       lea dx, Str
+       mov ah, 9h               ;; funcao para imprimir mensagem
+       int 21h                  ;; chama interrupcao
+
+       pop ds                   ;; recupera registrador
+
+ENDM                            ;; fim
+
+;----------------------------------------;
+;    Verifica tecla pressionada          ;
+;----------------------------------------;
+ KeyPress   MACRO
+
+          mov ax, 0800h
+          int 21h
+
+ENDM
+
+
